@@ -3,6 +3,8 @@ from tkinter import *
 
 # import messagebox class from tkinter
 from tkinter import messagebox
+from datetime import date
+from age import calendar_age
 
 
 # Function for clearing the
@@ -39,56 +41,18 @@ def checkError():
 
 # function to calculate Age
 def calculateAge():
-    # check for error
-    value = checkError()
-
-    # if error is occur then return
-    if value == -1:
+    try:
+        birth = date(int(yearField.get()), int(monthField.get()), int(dayField.get()))
+        given = date(int(givenYearField.get()), int(givenMonthField.get()), int(givenDayField.get()))
+        years, months, days = calendar_age(birth, given)
+    except ValueError as exc:
+        for field in (rsltYearField, rsltMonthField, rsltDayField):
+            field.delete(0, END)
+        messagebox.showerror("Input Error", str(exc))
         return
-
-    else:
-
-        # take a value from the respective entry boxes
-        # get method returns current text as string
-        birth_day = int(dayField.get())
-        birth_month = int(monthField.get())
-        birth_year = int(yearField.get())
-
-        given_day = int(givenDayField.get())
-        given_month = int(givenMonthField.get())
-        given_year = int(givenYearField.get())
-
-        # if birth date is greater then given birth_month
-        # then donot count this month and add 30 to the date so
-        # as to subtract the date and get the remaining days
-        month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-
-        if (birth_day > given_day):
-            given_month = given_month - 1
-            given_day = given_day + month[birth_month - 1]
-
-        # if birth month exceeds given month, then
-        # donot count this year and add 12 to the
-        # month so that we can subtract and find out
-        # the difference
-        if (birth_month > given_month):
-            given_year = given_year - 1
-            given_month = given_month + 12
-
-        # calculate day, month, year
-        calculated_day = given_day - birth_day;
-        calculated_month = given_month - birth_month;
-        calculated_year = given_year - birth_year;
-
-        # calculated day, month, year write back
-        # to the respective entry boxes
-
-        # insert method inserting the
-        # value in the text entry box.
-
-        rsltDayField.insert(10, str(calculated_day))
-        rsltMonthField.insert(10, str(calculated_month))
-        rsltYearField.insert(10, str(calculated_year))
+    for field, value in zip((rsltYearField, rsltMonthField, rsltDayField), (years, months, days)):
+        field.delete(0, END)
+        field.insert(0, str(value))
 
 
 # Driver Code
